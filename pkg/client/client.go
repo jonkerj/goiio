@@ -12,13 +12,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// IIO is the client connecting to a (remote) iiod
 type IIO struct {
-	conn    net.Conn
-	reader  *bufio.Reader
-	writer  *bufio.Writer
-	Context *types.Context
+	conn   net.Conn
+	reader *bufio.Reader
+	writer *bufio.Writer
+
+	Context *types.Context // contains the context of the remote iiod instance
 }
 
+// Creates a new IIO client
 func New(remote string) (*IIO, error) {
 	log.Debugf("resolving tcp to %s", remote)
 	addr, err := net.ResolveTCPAddr("tcp", remote)
