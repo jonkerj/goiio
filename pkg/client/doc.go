@@ -1,2 +1,2 @@
-// Package client is a iiod client written in pure golang
+// Package client is the sub-package containing the client code.
 package client

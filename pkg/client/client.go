@@ -67,6 +67,10 @@ func (i *IIO) commandSizedReply(cmd string) (*string, error) {
 	}
 	log.Debugf("size is %d", size)
 
+	if size < 0 {
+		return nil, fmt.Errorf("received negative size (error) from remote: %d", size)
+	}
+
 	reply, err := i.reader.ReadString('\n')
 	if err != nil {
 		return nil, fmt.Errorf("error reading data: %v", err)
@@ -94,6 +98,34 @@ func (i *IIO) fetchContext() error {
 	}
 
 	i.Context = &ctx
+
+	return nil
+}
+
+func (i *IIO) FetchAttributes() error {
+	for _, device := range i.Context.Devices {
+		for _, channel := range device.Channels {
+			if channel.Type != "input" {
+				continue
+			}
+
+			for _, attribute := range channel.Attributes {
+				raw, err := i.commandSizedReply(fmt.Sprintf("READ %s INPUT %s %s", device.ID, channel.ID, attribute.Name))
+				if err != nil {
+					return fmt.Errorf("error reading input: %v", err)
+				}
+
+				rawCleaned := strings.TrimRight(*raw, "\x00")
+
+				f, err := strconv.ParseFloat(rawCleaned, 64)
+				if err != nil {
+					return fmt.Errorf("reply is not parseble as float: %v", err)
+				}
+
+				attribute.Value = f
+			}
+		}
+	}
 
 	return nil
 }

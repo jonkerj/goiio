@@ -14,12 +14,16 @@ func main() {
 
 	log.Debugf("%d devices found", len(c.Context.Devices))
 
+	if err = c.FetchAttributes(); err != nil {
+		panic(err)
+	}
+
 	for _, dev := range c.Context.Devices {
 		log.Infof("Device: id=%s, name=%s\n", dev.ID, dev.Name)
 		for _, ch := range dev.Channels {
 			log.Infof("  Channel: id=%s\n", ch.ID)
 			for _, attr := range ch.Attributes {
-				log.Infof("    Attribute: %s\n", attr.Name)
+				log.Infof("    Attribute: %s, value: %0.3f\n", attr.Name, attr.Value)
 			}
 		}
 	}
