@@ -16,6 +16,20 @@ type CompareChannel func(*Channel) bool
 // implementing some kind of comparison function
 type CompareChannelAttribute func(*ChannelAttribute) bool
 
+type attributeOperation func(float64, float64) float64
+
+type attributeOp struct {
+	name string
+	op   attributeOperation
+}
+
+var attributeOps []attributeOp = []attributeOp{
+	{name: "raw", op: func(c, v float64) float64 { return v }},
+	{name: "input", op: func(c, v float64) float64 { return v }},
+	{name: "offset", op: func(c, v float64) float64 { return c + v }},
+	{name: "scale", op: func(c, v float64) float64 { return c * v }},
+}
+
 // GetDevice fetches the first device from the context satisfying the comparison
 // function
 func (h *Context) GetDevice(comp CompareDevice) *Device {
@@ -103,4 +117,17 @@ func (c *Channel) GetAttribute(comp CompareChannelAttribute) *ChannelAttribute {
 // GetAttrByName fetches the first attribute with given name
 func (c *Channel) GetAttrByName(name string) *ChannelAttribute {
 	return c.GetAttribute(func(ca *ChannelAttribute) bool { return ca.Name == name })
+}
+
+func (c *Channel) GetValue() float64 {
+	var current float64 = 0
+
+	for _, attrOp := range attributeOps {
+		a := c.GetAttrByName(attrOp.name)
+		if a != nil {
+			current = attrOp.op(current, a.Value)
+		}
+	}
+
+	return current
 }
