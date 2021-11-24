@@ -1,14 +1,18 @@
-package types
+package goiio
 
-import "encoding/xml"
+import (
+	"bufio"
+	"encoding/xml"
+	"net"
+)
 
 // Context holds the context of the remote IIOd
 type Context struct {
-	XMLName          xml.Name            `xml:"context"`           // Not sure where this is for
-	Name             string              `xml:"name,attr"`         // The name of the context
-	Description      string              `xml:"description,attr"`  // Description of the context
-	ContextAttribute []*ContextAttribute `xml:"context-attribute"` // Attributes that apply to the context
-	Devices          []*Device           `xml:"device"`            // Devices connected. This is probably what you need
+	XMLName           xml.Name            `xml:"context"`           // Not sure where this is for
+	Name              string              `xml:"name,attr"`         // The name of the context
+	Description       string              `xml:"description,attr"`  // Description of the context
+	ContextAttributes []*ContextAttribute `xml:"context-attribute"` // Attributes that apply to the context
+	Devices           []*Device           `xml:"device"`            // Devices connected. This is probably what you need
 }
 
 // ContextAttribute is the data structure containing attributes relating to the context
@@ -36,4 +40,13 @@ type ChannelAttribute struct {
 	Name     string  `xml:"name,attr"`            // Name of the attribute, e.g. "oversampling_ratio"
 	Filename string  `xml:"filename,attr"`        // Filename of the attribute in sysfs, e.g. "in_pressure_oversampling_ratio"
 	Value    float64 `xml:"value,attr,omitempty"` // Value of the attribute
+}
+
+// IIO is the client connecting to a (remote) iiod
+type IIO struct {
+	conn   net.Conn
+	reader *bufio.Reader
+	writer *bufio.Writer
+
+	Context *Context // contains the context of the remote iiod instance
 }

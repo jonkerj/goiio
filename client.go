@@ -1,4 +1,4 @@
-package client
+package goiio
 
 import (
 	"bufio"
@@ -8,18 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/jonkerj/go-iio/pkg/types"
 	log "github.com/sirupsen/logrus"
 )
-
-// IIO is the client connecting to a (remote) iiod
-type IIO struct {
-	conn   net.Conn
-	reader *bufio.Reader
-	writer *bufio.Writer
-
-	Context *types.Context // contains the context of the remote iiod instance
-}
 
 // Creates a new IIO client
 func New(remote string) (*IIO, error) {
@@ -86,7 +76,7 @@ func (i *IIO) commandSizedReply(cmd string) (*string, error) {
 }
 
 func (i *IIO) fetchContext() error {
-	var ctx types.Context
+	var ctx Context
 
 	contextStr, err := i.commandSizedReply("PRINT")
 	if err != nil {

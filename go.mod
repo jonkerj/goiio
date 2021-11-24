@@ -1,4 +1,4 @@
-module github.com/jonkerj/go-iio
+module github.com/jonkerj/goiio
 
 go 1.17
 

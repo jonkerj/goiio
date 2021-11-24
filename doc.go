@@ -1,4 +1,4 @@
-// go-iio is a pure golang client for IIO (industrial I/O)
+// goiio is a pure golang client for IIO (industrial I/O)
 //
 // Introduction
 //
@@ -13,7 +13,7 @@
 //
 // The following example shows an example on how to use this library
 //
-//   c, err := client.New("my-sensor.home.lan:30431")
+//   c, err := goiio.New("my-sensor.home.lan:30431")
 //   if err != nil {
 //     panic(err)
 //   }
@@ -33,4 +33,4 @@
 //       }
 //     }
 //   }
-package main
+package goiio
