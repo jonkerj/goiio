@@ -33,6 +33,15 @@ func New(remote string) (*IIO, error) {
 	return i, nil
 }
 
+func (i *IIO) Close() error {
+	log.Debugf("Closing TCP connection...")
+	err := i.conn.Close()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // Sends command and check whether return matches return length.
 // Expects 3 return arguments; response length, enabled channel buffers,
 // and response
