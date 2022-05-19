@@ -33,6 +33,9 @@ func New(remote string) (*IIO, error) {
 	return i, nil
 }
 
+// commandSizedReply sends a command and checks whether return response matches
+// return length.
+// The response expects two return arguments; response length and response.
 func (i *IIO) commandSizedReply(cmd string) (*string, error) {
 	log.Debugf("commandSizedReply(%s)", cmd)
 	_, err := i.writer.WriteString(fmt.Sprintf("%s\n", cmd))
@@ -57,11 +60,18 @@ func (i *IIO) commandSizedReply(cmd string) (*string, error) {
 	}
 	log.Debugf("size is %d", size)
 
+	// If the response for commands such as OPEN, which returns only the size
+	// ie. 0 with no response, this forever waits for the end of line character
+	// so we therefore associate 0 as a successful response with no return
+	// contents.
+	reply := ""
 	if size < 0 {
 		return nil, fmt.Errorf("received negative size (error) from remote: %d", size)
+	} else if size == 0 {
+		return &reply, nil
 	}
 
-	reply, err := i.reader.ReadString('\n')
+	reply, err = i.reader.ReadString('\n')
 	if err != nil {
 		return nil, fmt.Errorf("error reading data: %v", err)
 	}
