@@ -33,6 +33,8 @@ func New(remote string) (*IIO, error) {
 	return i, nil
 }
 
+// Sends command and check whether return matches return length.
+// Expects 2 return arguments; response length and response
 func (i *IIO) commandSizedReply(cmd string) (*string, error) {
 	log.Debugf("commandSizedReply(%s)", cmd)
 	_, err := i.writer.WriteString(fmt.Sprintf("%s\n", cmd))
@@ -57,11 +59,18 @@ func (i *IIO) commandSizedReply(cmd string) (*string, error) {
 	}
 	log.Debugf("size is %d", size)
 
+    // commandSizedReply returns the size of the response and then the response
+    // for commands such as OPEN which returns only the size i.e. 0 with no response
+    // this forever waits for the end of line character, we therefore associate 0 as
+    // a successful response with no return contents.
+    reply := ""
 	if size < 0 {
 		return nil, fmt.Errorf("received negative size (error) from remote: %d", size)
+    } else if size == 0 {
+        return &reply, nil
 	}
 
-	reply, err := i.reader.ReadString('\n')
+	reply, err = i.reader.ReadString('\n')
 	if err != nil {
 		return nil, fmt.Errorf("error reading data: %v", err)
 	}
@@ -92,6 +101,7 @@ func (i *IIO) fetchContext() error {
 	return nil
 }
 
+// Fetch all attributes for all devices
 func (i *IIO) FetchAttributes() error {
 	for _, device := range i.Context.Devices {
 		for _, channel := range device.Channels {
