@@ -23,7 +23,7 @@ type attributeOp struct {
 	op   attributeOperation
 }
 
-var attributeOps []attributeOp = []attributeOp{
+var attributeOps = []attributeOp{
 	{name: "raw", op: func(c, v float64) float64 { return v }},
 	{name: "input", op: func(c, v float64) float64 { return v }},
 	{name: "offset", op: func(c, v float64) float64 { return c + v }},
@@ -32,8 +32,8 @@ var attributeOps []attributeOp = []attributeOp{
 
 // GetDevice fetches the first device from the context satisfying the comparison
 // function
-func (h *Context) GetDevice(comp CompareDevice) *Device {
-	for _, device := range h.Devices {
+func (c *Context) GetDevice(comp CompareDevice) *Device {
+	for _, device := range c.Devices {
 		if comp(device) {
 			return device
 		}
@@ -120,7 +120,7 @@ func (c *Channel) GetAttrByName(name string) *ChannelAttribute {
 }
 
 func (c *Channel) GetValue() float64 {
-	var current float64 = 0
+	var current float64
 
 	for _, attrOp := range attributeOps {
 		a := c.GetAttrByName(attrOp.name)
