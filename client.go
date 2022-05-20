@@ -29,7 +29,12 @@ func New(remote string) (*IIO, error) {
 	w := bufio.NewWriter(conn)
 
 	i := &IIO{conn: conn, reader: r, writer: w}
-	i.fetchContext()
+
+	err = i.fetchContext()
+	if err != nil {
+		return nil, fmt.Errorf("error fetching context: %v", err)
+	}
+
 	return i, nil
 }
 
