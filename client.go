@@ -29,7 +29,12 @@ func New(remote string) (*IIO, error) {
 	w := bufio.NewWriter(conn)
 
 	i := &IIO{conn: conn, reader: r, writer: w}
-	i.fetchContext()
+
+	err = i.fetchContext()
+	if err != nil {
+		return nil, fmt.Errorf("error fetching context: %v", err)
+	}
+
 	return i, nil
 }
 
@@ -92,6 +97,7 @@ func (i *IIO) fetchContext() error {
 	return nil
 }
 
+// FetchAttributes Fetches all attributes from the IIO client
 func (i *IIO) FetchAttributes() error {
 	for _, device := range i.Context.Devices {
 		for _, channel := range device.Channels {
