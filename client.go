@@ -97,6 +97,7 @@ func (i *IIO) fetchContext() error {
 	return nil
 }
 
+// FetchAttributes Fetches all attributes from the IIO client
 func (i *IIO) FetchAttributes() error {
 	for _, device := range i.Context.Devices {
 		for _, channel := range device.Channels {
