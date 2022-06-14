@@ -1,25 +1,39 @@
-name: Release
+name: release
 on:
   push:
     branches:
     - main
 jobs:
-  release:
-    name: "Release"
+  tag:
     runs-on: ubuntu-latest
+    outputs:
+      changelog: ${{ steps.tag.outputs.changelog }}
+      tag: ${{ steps.tag.outputs.new_tag }}
+      version: ${{ steps.tag.outputs.new_version }}
+      date: ${{ steps.date.outputs.date }}
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Setup Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17.x
-    - name: Run gofmt
-      run: if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi
-    - name: Run vet
-      run:  go vet ./...
+      uses: actions/checkout@v3
     - name: Bump version and tag
-      id: tag_version
-      uses: mathieudutour/github-tag-action@v5.6
+      uses: mathieudutour/github-tag-action@v6.0
+      id: tag
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  release:
+    needs:
+    - tag
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ needs.tag.outputs.tag }}
+        name: Release ${{ needs.tag.outputs.version }}
+        body: |
+          Changes in this release:
+
+          ${{ needs.tag.outputs.changelog }}
+
+          Docker image: `ghcr.io/${{ github.repository }}:${{ needs.tag.outputs.tag }}`
+        files: scra-*-*,scra.sha256
