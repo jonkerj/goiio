@@ -19,6 +19,9 @@ jobs:
       id: tag
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Trigger update at pkg.go.dev
+      run: |
+        curl https://sum.golang.org/lookup/github.com/{{ github.repository }}@{{ steps.tag.outputs.new_tag }}
 
   release:
     needs:
