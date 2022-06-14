@@ -19,6 +19,9 @@ jobs:
       id: tag
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Trigger update at pkg.go.dev
+      run: |
+        curl https://sum.golang.org/lookup/github.com/{{ github.repository }}@{{ steps.tag.outputs.new_tag }}
 
   release:
     needs:
@@ -34,6 +37,3 @@ jobs:
           Changes in this release:
 
           ${{ needs.tag.outputs.changelog }}
-
-          Docker image: `ghcr.io/${{ github.repository }}:${{ needs.tag.outputs.tag }}`
-        files: scra-*-*,scra.sha256
